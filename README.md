@@ -23,11 +23,3 @@ npm install
 ```
 
 Lancement du projet:
-- Pour lancer le projet, ouvrez une invite de commande à la racine du projet et exécuter:  
-```bash=
-node app
-```
-ou
-```bash=
-nodemon app
-```

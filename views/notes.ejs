@@ -47,21 +47,48 @@
                                             <%= note.course %>
                                         </td>
                                         <td>
-                                            <%= note.coef %>
+                                            <strong><%= note.coef %></strong>
+                                            
                                         </td>
                                         <td>
                                             <%= note.ects %>
                                         </td>
                                         <td>
-                                        <% for(var n in note.grades) { %>
-                                            <%= note.grades[n] %>   
-                                        <% } %>
-                                    </td>
-                                        <td>
-                                            <%= note.exam %>
+                                            <% for(var n in note.grades) { %>
+                                                <% if (note.grades[n] > 16) { %>
+                                                    <span style="color: green;"><%= note.grades[n] %></span>
+                                                <% } else if (note.grades[n] > 8 && note.grades[n] < 10) { %>
+                                                    <span style="color: orange;"><%= note.grades[n] %></span>
+                                                <% } else if (note.grades[n] < 8) { %>
+                                                    <span style="color: red;"><%= note.grades[n] %></span>
+                                                <% } else { %>
+                                                    <%= note.grades[n] %>
+                                                <% } %>
+                                            <% } %>
                                         </td>
                                         <td>
-                                            <%= note.average %>
+                                                <% if (note.exam > 16) { %>
+                                                    <span style="color: green;"><%= note.exam %></span>
+                                                <% } else if (note.exam > 8 && note.exam < 10) { %>
+                                                    <span style="color: orange;"><%= note.exam %></span>
+                                                <% } else if (note.exam < 8) { %>
+                                                    <span style="color: red;"><%= note.exam %></span>
+                                                <% } else { %>
+                                                    <%= note.exam %>
+                                                <% } %>
+                                        </td>
+                                        <td>
+                                            <strong>
+                                                <% if (note.average > 16) { %>
+                                                    <span style="color: green;"><%= note.average %></span>
+                                                <% } else if (note.average > 8 && note.average < 10) { %>
+                                                    <span style="color: orange;"><%= note.average %></span>
+                                                <% } else if (note.average < 8) { %>
+                                                    <span style="color: red;"><%= note.average %></span>
+                                                <% } else { %>
+                                                    <%= note.average %>
+                                                <% } %>
+                                            </strong>
                                         </td>
                                         <td>
                                             <%= note.teacher_civility %>
