@@ -1,53 +1,61 @@
-var express = require('express')
-var path = require('path');
-var session = require('express-session');
-var app = express();
-var  cookieParser = require('cookie-parser');
-require('dotenv').config();
-const PORT = 3000;
+import cookieParser from "cookie-parser";
+import express from "express";
+import session from "express-session";
+import path from "path";
 
-var checkLoggedIn = async function(req, res, next) {
-    if (req.session.connected && req.session.username !== "" && req.session.password !== "") {
-        next();
-    } else {
-        res.redirect("/login");
-    }
-}
+import { fileURLToPath } from "url";
 
-var logout = function(req, res, next) {
-    req.session.destroy();
-    res.clearCookie("connect.sid")
-    res.clearCookie("MygesBearerToken")
-    res.redirect('/login');
-    res.end();
-}
+import absencesRouter from "./routes/absences.js";
+import agendaRouter from "./routes/agenda.js";
+import loginRouter from "./routes/login.js";
+import notesRouter from "./routes/notes.js";
 
-app.use(express.static('public'));
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'ejs');
-app.set('trust proxy', 1)
-app.use(session({
+const PORT = process.env.PORT;
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const checkLoggedIn = async (req, res, next) => {
+  if (req.session.connected && req.session.username !== "" && req.session.password !== "") {
+    next();
+  } else {
+    res.redirect("/login");
+  }
+};
+
+const logout = (req, res, next) => {
+  req.session.destroy();
+  res.clearCookie("connect.sid");
+  res.clearCookie("MygesBearerToken");
+  res.redirect("/login");
+  res.end();
+};
+
+const app = express();
+app.use(express.static("public"));
+// app.set("views", path.join(__dirname, "views"));
+app.set("views", path.join(__dirname, "views"));
+app.set("view engine", "ejs");
+app.set("trust proxy", 1);
+app.use(
+  session({
     secret: process.env.COOKIE_SECRET,
     resave: true,
     saveUninitialized: false,
-    cookie: { secure: false }
-}))
+    cookie: { secure: false },
+  })
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, "public")));
 app.use(cookieParser());
-var absencesRouter = require('./routes/absences');
-var loginRouter = require('./routes/login');
-var agendaRouter = require('./routes/agenda');
-var notesRouter = require('./routes/notes');
 
-app.use('/login', loginRouter);
-app.use('/logout', logout, loginRouter);
-app.use('/', checkLoggedIn, agendaRouter);
-app.use('/index', checkLoggedIn, agendaRouter);
-app.use('/agenda', checkLoggedIn, agendaRouter);
-app.use('/absences', checkLoggedIn, absencesRouter);
-app.use('/notes', checkLoggedIn, notesRouter);
-
+app.use("/login", loginRouter);
+app.use("/logout", logout, loginRouter);
+app.use("/", checkLoggedIn, agendaRouter);
+app.use("/index", checkLoggedIn, agendaRouter);
+app.use("/agenda", checkLoggedIn, agendaRouter);
+app.use("/absences", checkLoggedIn, absencesRouter);
+app.use("/notes", checkLoggedIn, notesRouter);
 
 app.listen(PORT, () => console.log(`Server Running at port ${PORT}`));

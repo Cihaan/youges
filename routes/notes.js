@@ -1,35 +1,36 @@
-const express = require('express')
-var router = express.Router();
-const APIConnection = require('../models/APIConnection.js');
+import express from "express";
+import APIConnection from "../models/APIConnection.js";
 
-router.get('/', async function (req, res) {
-   let api = new APIConnection(req.session.username, req.session.password);
-   await api.login(req, res);
+const router = express.Router();
 
-   let grades = await api.getGrades();
+router.get("/", async (req, res) => {
+  const api = new APIConnection(req.session.username, req.session.password);
+  await api.login(req, res);
 
-   if (grades.length == 0) {
-      res.redirect('/agenda');
-   } else {
-      res.render('notes', {
-         profile: req.session.profile,
-         notes: grades,
-         semesters: getSemesters(grades)
-      });
-   }
-})
+  const grades = await api.getGrades();
 
-function getSemesters(grades) {
-   var semesters = [];
-   for (var grade of grades) {
-      for (const course of grade) {
-         let s = { "semester_name": course.year + " - " + course.trimester_name, "semester_id": course.year*course.trimester };
-         if (semesters.filter(e => e.semester_name == s.semester_name && e.semester_id == s.semester_id).length == 0) {
-            semesters.push(s);
-         }
+  if (grades.length === 0) {
+    res.redirect("/agenda");
+  } else {
+    res.render("notes", {
+      profile: req.session.profile,
+      notes: grades,
+      semesters: getSemesters(grades),
+    });
+  }
+});
+
+const getSemesters = (grades) => {
+  const semesters = [];
+  for (const grade of grades) {
+    for (const course of grade) {
+      const s = { semester_name: `${course.year} - ${course.trimester_name}`, semester_id: course.year * course.trimester };
+      if (semesters.filter((e) => e.semester_name === s.semester_name && e.semester_id === s.semester_id).length === 0) {
+        semesters.push(s);
       }
-   }
-   return semesters;
-}
+    }
+  }
+  return semesters;
+};
 
-module.exports = router;
+export default router;
