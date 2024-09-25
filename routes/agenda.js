@@ -7,7 +7,7 @@ let api;
 const cache = new NodeCache({ stdTTL: process.env.CACHE_TTL });
 
 router.get("/", async (req, res) => {
-  const cacheKey = `agenda_${req.session.username}_${DateToString(new Date(Date.now()))}`;
+  const cacheKey = `agenda_${req.session.username}_week${getWeekNumber(new Date(Date.now()))}`;
   let agenda = cache.get(cacheKey);
 
   if (!agenda) {
@@ -28,7 +28,7 @@ router.post("/", async (req, res) => {
     selectedDateString = req.body.dateTimePicker;
   }
 
-  const cacheKey = `agenda_${req.session.username}_${selectedDateString}`;
+  const cacheKey = `agenda_${req.session.username}_week${getWeekNumber(selectedDate)}`;
   let agenda = cache.get(cacheKey);
 
   if (!agenda) {
@@ -38,6 +38,11 @@ router.post("/", async (req, res) => {
 
   agendaRedirect(res, req, agenda, selectedDateString);
 });
+
+const getWeekNumber = (date) => {
+  const onejan = new Date(date.getFullYear(), 0, 1);
+  return Math.ceil(((date - onejan) / 86400000 + onejan.getDay() + 1) / 7);
+};
 
 const agendaRedirect = (res, req, agenda, date) => {
   if (agenda == null || agenda == NaN || agenda == undefined) {
