@@ -1,12 +1,21 @@
 import express from "express";
+import NodeCache from "node-cache";
 import APIConnection from "../models/APIConnection.js";
 
 const router = express.Router();
+const cache = new NodeCache();
 
 router.get("/", async (req, res) => {
-  const api = new APIConnection(req.session.username, req.session.password);
-  await api.login(req, res);
-  const absences = await api.getAbsences();
+  const cacheKey = "absences";
+  let absences = cache.get(cacheKey);
+
+  if (!absences) {
+    const api = new APIConnection(req.session.username, req.session.password);
+    await api.login(req, res);
+    absences = await api.getAbsences();
+    cache.set(cacheKey, absences);
+  }
+
   if (!absences) {
     res.redirect("/agenda");
   } else {

@@ -50,6 +50,10 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
 app.use(cookieParser());
 
+app.use("/healthz", (req, res) => {
+  res.sendStatus(200);
+});
+
 app.use("/login", loginRouter);
 app.use("/logout", logout, loginRouter);
 app.use("/", checkLoggedIn, agendaRouter);

@@ -2,8 +2,6 @@ import express from "express";
 import APIConnection from "../models/APIConnection.js";
 
 const router = express.Router();
-const url = "https://raw.githubusercontent.com/BenoitPE/MyGESPlanning/main/package.json";
-const settings = { method: "Get" };
 let upToDate = true;
 
 router.get("/", async (req, res) => {

@@ -1,13 +1,23 @@
 import express from "express";
+import NodeCache from "node-cache";
 import APIConnection from "../models/APIConnection.js";
 
 const router = express.Router();
 let api;
+const cache = new NodeCache({ stdTTL: process.env.CACHE_TTL });
 
 router.get("/", async (req, res) => {
-  api = new APIConnection(req.session.username, req.session.password);
-  await api.login(req, res);
-  agendaRedirect(res, req, await api.getAgenda(getWeekDays(new Date(Date.now()))), DateToString(new Date(Date.now())));
+  const cacheKey = `agenda_${req.session.username}_${DateToString(new Date(Date.now()))}`;
+  let agenda = cache.get(cacheKey);
+
+  if (!agenda) {
+    api = new APIConnection(req.session.username, req.session.password);
+    await api.login(req, res);
+    agenda = await api.getAgenda(getWeekDays(new Date(Date.now())));
+    cache.set(cacheKey, agenda);
+  }
+
+  agendaRedirect(res, req, agenda, DateToString(new Date(Date.now())));
 });
 
 router.post("/", async (req, res) => {
@@ -18,7 +28,15 @@ router.post("/", async (req, res) => {
     selectedDateString = req.body.dateTimePicker;
   }
 
-  agendaRedirect(res, req, await api.getAgenda(getWeekDays(selectedDate)), selectedDateString);
+  const cacheKey = `agenda_${req.session.username}_${selectedDateString}`;
+  let agenda = cache.get(cacheKey);
+
+  if (!agenda) {
+    agenda = await api.getAgenda(getWeekDays(selectedDate));
+    cache.set(cacheKey, agenda);
+  }
+
+  agendaRedirect(res, req, agenda, selectedDateString);
 });
 
 const agendaRedirect = (res, req, agenda, date) => {
